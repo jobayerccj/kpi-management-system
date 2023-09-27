@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  ubuntu:
+    container_name: dc.kpiubuntu
+    build:
+      context: ./.docker/ubuntu/
+    volumes:
+      - .:/var/www/html
+      - ./.docker/logs:/var/log/apache2
+      - ./.docker/.composer:/root/.composer
+    networks:
+      - kpinetwork
+    ports:
+      - 127.0.0.1:93:80
+      - 127.0.0.1:543:443
+    links:
+      - "db:db"
+
+  db:
+    container_name: dc.kpidb
+    build:
+      context: ./.docker/db/
+    environment:
+      - "MYSQL_ROOT_PASSWORD=Password123"
+    networks:
+      - kpinetwork
+    ports:
+      - "3309:3306"
+    volumes:
+      - .docker/db/mounted_db:/var/www/db
+      - ./.docker/.data/db:/var/lib/mysql:Z
+
+  phpmyadmin:
+    container_name: dc.phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - "PMA_HOST=db"
+      - "PMA_USER=root"
+      - "PMA_PASSWORD=Password123"
+    networks:
+      - kpinetwork
+    ports:
+      - "8080:80"
+    links:
+      - "db:db"
+    depends_on:
+      - "db"
+
+  mailhog:
+    container_name: dc.mailhog
+    image: mailhog/mailhog
+    ports:
+      - "8035:8025"
+      - "1035:1025"
+    networks:
+      - kpinetwork
+
+networks:
+  kpinetwork:
