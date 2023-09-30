@@ -12,8 +12,8 @@ services:
     networks:
       - kpinetwork
     ports:
-      - 127.0.0.1:93:80
-      - 127.0.0.1:543:443
+      - 127.0.0.1:80:80
+      - 127.0.0.1:443:443
     links:
       - "db:db"
 
@@ -26,7 +26,7 @@ services:
     networks:
       - kpinetwork
     ports:
-      - "3309:3306"
+      - "3306:3306"
     volumes:
       - .docker/db/mounted_db:/var/www/db
       - ./.docker/.data/db:/var/lib/mysql:Z
@@ -51,8 +51,8 @@ services:
     container_name: dc.mailhog
     image: mailhog/mailhog
     ports:
-      - "8035:8025"
-      - "1035:1025"
+      - "8025:8025"
+      - "1025:1025"
     networks:
       - kpinetwork
 

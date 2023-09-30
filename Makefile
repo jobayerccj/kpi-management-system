@@ -2,7 +2,7 @@
 ## Build images (and ensure they are up to date)
 build:
 	@echo 'Pull & build required images'
-	docker-compose build
+	docker compose build
 
 #####
 ## Start containers
@@ -12,14 +12,14 @@ start:
 		echo 'Creating network kpinetwork'; \
 		docker network create kpinetwork; \
 	fi
-	@docker-compose up -d
+	@docker compose up -d
 	@docker network connect kpinetwork dc.kpiubuntu
 
 #####
 ## Stop containers & remove docker networks
 stop:
 	@echo 'Stopping containers'
-	@if docker-compose down; then \
+	@if docker compose down; then \
     	if [ $$(docker network inspect -f '{{.Containers}}' kpinetwork | jq 'length') -eq 0 ]; then \
     		echo 'Remove network kpinetwork'; \
     		docker network rm kpinetwork; \

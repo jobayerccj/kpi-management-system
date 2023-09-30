@@ -12,7 +12,7 @@ class HomeController extends AbstractController
     public function index()
     {
         return new JsonResponse([
-           'data' => 'test 123'
+           'data' => 'test 123 45678'
         ]);
     }
 }

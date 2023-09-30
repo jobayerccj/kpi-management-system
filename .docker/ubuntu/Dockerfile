@@ -29,20 +29,20 @@ RUN apt-get update
 RUN apt-get install software-properties-common -y
 RUN apt-get update
 RUN apt-get -y install tzdata
-RUN apt-get install -y php
-RUN apt-get install -y libapache2-mod-php
+RUN apt-get install -y php8.1
+RUN apt-get install -y libapache2-mod-php8.1
 
 #php-extensions
-RUN apt-get install -y php-curl
-RUN apt-get install -y php-ldap
-RUN apt-get install -y php-dom
-RUN apt-get install -y php-xml
-RUN apt-get install -y php-mbstring
-RUN apt-get install -y php-gd
-RUN apt-get install -y php-zip
-RUN apt-get install -y php-soap
-RUN apt-get install -y php-mysql
-RUN apt-get install -y php-apcu
+RUN apt-get install -y php8.1-curl
+RUN apt-get install -y php8.1-ldap
+RUN apt-get install -y php8.1-dom
+RUN apt-get install -y php8.1-xml
+RUN apt-get install -y php8.1-mbstring
+RUN apt-get install -y php8.1-gd
+RUN apt-get install -y php8.1-zip
+RUN apt-get install -y php8.1-soap
+RUN apt-get install -y php8.1-mysql
+RUN apt-get install -y php8.1-apcu
 
 RUN a2enmod rewrite
 
@@ -52,7 +52,7 @@ RUN apt-get install -y openssh-server
 RUN apt-get install -y supervisor
 
 # Install & configure xdebug extention
-RUN apt-get install -y php-xdebug
+RUN apt-get install -y php8.1-xdebug
 RUN echo '[xdebug]' >> /etc/php/8.1/apache2/php.ini
 RUN echo 'xdebug.default_enable=1' >> /etc/php/8.1/apache2/php.ini
 RUN echo 'xdebug.idekey=PHPSTORM' >> /etc/php/8.1/apache2/php.ini
