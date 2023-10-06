@@ -34,3 +34,5 @@ phpstan.neon
 ###< squizlabs/php_codesniffer ###
 
 /.phplint-cache
+.phplint-cache
+./.phplint-cache

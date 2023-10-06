@@ -43,6 +43,7 @@ RUN apt-get install -y php8.1-zip
 RUN apt-get install -y php8.1-soap
 RUN apt-get install -y php8.1-mysql
 RUN apt-get install -y php8.1-apcu
+RUN apt-get install -y php8.1-amqp
 
 RUN a2enmod rewrite
 

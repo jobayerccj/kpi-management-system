@@ -28,3 +28,10 @@ sudo kill -9 processIdOfMessengerInstance #(or change with id)
 php bin/console messenger:consume async
 ```
 Then system will initiate a new instance using the updated code.
+
+### Unit Test
+
+```
+php bin/console doctrine:fixtures:load --env=test
+php bin/phpunit
+```
