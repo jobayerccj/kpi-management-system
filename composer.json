@@ -73,8 +73,12 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
+        "install-githooks": [
+            "cp -Rf .githooks/. .git/hooks/"
+        ],
         "post-install-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "@install-githooks"
         ],
         "post-update-cmd": [
             "@auto-scripts"

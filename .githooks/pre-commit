@@ -1,0 +1,92 @@
+#!/bin/sh
+echo >&2 "\033[0;33mTesting PHP CS Fixer from inside out V2.\033[1;0m"
+# Set colors
+ESC_SEQ="\x1b["
+COL_OFF=$ESC_SEQ"39;49;00m"
+COL_INFO=$ESC_SEQ"32;01m"
+COL_WARN=$ESC_SEQ"31;01m"
+
+INFO="${COL_INFO}=>${COL_OFF}"
+WARN="${COL_WARN}!!${COL_OFF}"
+FAIL="${COL_WARN}EE${COL_OFF}"
+
+EMPTY=0000000000000000000000000000000000000000
+
+echo -e "$COL_INFO===  PRE-COMMIT HOOK ===$COL_OFF"
+
+#Check if working tree has local modifications to prevent
+#false positives from remaining tests.
+git diff-files --quiet
+if [ $? -ne 0 ]; then
+    echo -e "$WARN Untracked changes exist, please commit or stash them."
+    exit 1
+fi
+
+CHANGESET=$(git diff --name-only --diff-filter=ACMR --cached)
+
+#Determine if there are any changed files for PHP:
+CHANGESETPHP=$(echo "$CHANGESET" | grep -E '.*\.php$')
+if [ $? -eq 0 ]; then
+    echo -e "$INFO php changes detected."
+    PHP=true
+fi
+
+#Determine if there are any changed files for JS:
+CHANGESETJS=$(echo "$CHANGESET" | grep -E '.*\.jst?x?$')
+if [ $? -eq 0 ]; then
+    echo -e "$INFO js changes detected."
+    JS=true
+fi
+
+if [ $PHP ]; then
+    echo -e "$INFO PHPLint check"
+    if [ ! -f vendor/bin/phplint ]; then
+        echo -e "$FAIL vendor/bin/phplint not found"
+        exit 1
+    fi
+
+    vendor/bin/phplint -c ./phplint.yml $CHANGESETPHP || exit 1
+
+    echo -e "$INFO Code Sniffer check"
+    if [ ! -f vendor/bin/phpcs ]; then
+        echo -e "$FAIL vendor/bin/phpcs not found"
+        exit 1
+    fi
+
+    vendor/bin/phpcs $CHANGESETPHP || exit 1
+
+    echo -e "$INFO PHPStan check"
+    if [ ! -f vendor/bin/phpstan ]; then
+        echo -e "$FAIL vendor/bin/phpstan not found"
+        exit 1
+    fi
+
+    vendor/bin/phpstan analyze $CHANGESETPHP || exit 1
+
+#    echo -e "$INFO Mess Detector check"
+#    if [ ! -f vendor/bin/phpmd ]; then
+#        echo -e "$FAIL vendor/bin/phpmd not found"
+#        exit 1
+#    fi
+
+    # TODO Convert CHANGESETPHP into comma separated string here
+    # vendor/bin/phpmd $CHANGESETPHP text ./phpmd.xml || exit 1
+
+fi
+
+if [ $JS ]; then
+    #Test node executable.
+    command -v node > /dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "$FAIL node is not available"
+        exit 1
+    fi
+
+    echo -e "$INFO ESLint check"
+    if [ ! -f node_modules/.bin/eslint ]; then
+        echo -e "$FAIL node_modules/.bin/eslint not found"
+        exit 1
+    fi
+
+    node_modules/.bin/eslint --quiet --fix $CHANGESETJS || exit 1
+fi
