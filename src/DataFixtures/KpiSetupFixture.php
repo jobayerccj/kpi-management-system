@@ -20,7 +20,6 @@ class KpiSetupFixture extends Fixture
             $kpiSetup->setUpdatedAt($date);
             $manager->persist($kpiSetup);
         }
-
         $manager->flush();
     }
 }

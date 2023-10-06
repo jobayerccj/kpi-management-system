@@ -6,3 +6,4 @@ exclude:
     - vendor
     - migrations
 warning: true
+no-cache: true

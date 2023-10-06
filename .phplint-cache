@@ -1,2 +1,1 @@
-{"config\/bundles.php":"63b3edd5c1c61e56d904bbc410b5ca57","src\/DataFixtures\/AppFixtures.php":"a32dbf4b520d7cceb82b072c261e7564","src\/Controller\/Api\/v1\/UserManagementController.php":"7e9605c4bb50756d2e61b6af73e65635","src\/Service\/UserService.php":"b0463246bc0bafea76750a1ba38d4da0"}
-
+{"migrations\/Version20231123153216.php":"55c2a8f6a4ed9c6cd188ddf6958398fd","migrations\/Version20231128160017.php":"a973141a0541dec427877e964eb37f43"}
