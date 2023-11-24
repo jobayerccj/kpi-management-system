@@ -27,7 +27,7 @@ class MailerService
             ->from('info@kpimanagement.com')
             ->to($user->getEmail())
             ->subject('Please confirm your account')
-            ->html($this->prepareApprovalEmailToAdminHtml($user));
+            ->html($this->prepareVerificationEmailHtml($user));
 
         try {
             $this->mailer->send($email);
@@ -50,7 +50,7 @@ class MailerService
             ->from($user->getEmail())
             ->to('info@kpimanagement.com')
             ->subject('Please approve account')
-            ->html($this->prepareVerificationEmailHtml($user));
+            ->html($this->prepareApprovalEmailToAdminHtml($user));
 
         try {
             $this->mailer->send($email);
@@ -66,7 +66,30 @@ class MailerService
         ]);
     }
 
-    private function prepareVerificationEmailHtml(User $user): string
+    /**
+     * @return JsonResponse|null
+     */
+    public function sendApprovalEmailToUser(User $user)
+    {
+        $email = (new Email())
+            ->from('info@kpimanagement.com')
+            ->to($user->getEmail())
+            ->subject('Your account is processed')
+            ->html($this->prepareApprovalEmailToUserHtml($user));
+
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        return null;
+    }
+
+    private function prepareApprovalEmailToAdminHtml(User $user): string
     {
         return "<p>Please approve this user </p>" .
             "<p>User Email: " . $user->getEmail() . "</p>" .
@@ -74,7 +97,7 @@ class MailerService
             ;
     }
 
-    private function prepareApprovalEmailToAdminHtml(User $user): string
+    private function prepareVerificationEmailHtml(User $user): string
     {
         $verificationUrl = $this->router->generate(
             'app_api_v1_user_confirm_registration',
@@ -82,5 +105,17 @@ class MailerService
             UrlGeneratorInterface::ABSOLUTE_URL
         );
         return "<a href=\"$verificationUrl\">Please click on this link to complete your registration</a>";
+    }
+
+    private function prepareApprovalEmailToUserHtml(User $user): string
+    {
+        if ($user->isStatus()) {
+            return sprintf("Hello %s, Your account is approved, now you can access our system", $user->getName());
+        }
+
+        return sprintf(
+            "Hello %s, Your account is rejected, sorry for the inconvenience, please contact with admin",
+            $user->getName()
+        );
     }
 }
