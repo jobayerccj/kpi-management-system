@@ -10,25 +10,30 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api/v1/user', name: 'app_api_v1_user_')]
-class UserController extends AbstractController
+#[Route('/api/v1/user-management', name: 'app_api_v1_user_management_')]
+class UserManagementController extends AbstractController
 {
     public function __construct(private readonly UserService $userService)
     {
     }
 
-    #[Route('/register', name: 'register', methods: ["POST"])]
-    public function register(Request $request): JsonResponse
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    #[Route('/user-list', name: 'user_list', methods: ["GET"])]
+    public function userList(Request $request): JsonResponse
     {
+        // status null = not verified, 1 = approved, 0 = rejected
         try {
-            $result = $this->userService->processUserData($request);
-
+            $result = $this->userService->findUsers($request);
             return $this->json(
                 [
                     'status' => $result['status'],
-                    'message' => $result['message'],
+                    'users' => $result['users'],
+                    'message' => $result['message']
                 ],
-                $result['status'] ? Response::HTTP_CREATED : Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_OK
             );
         } catch (Exception $exc) {
             return $this->json(
@@ -39,17 +44,5 @@ class UserController extends AbstractController
                 RESPONSE::HTTP_UNPROCESSABLE_ENTITY
             );
         }
-    }
-
-    #[Route('/confirm-registration/{userId}/{verificationCode}', name: 'confirm_registration')]
-    public function verifyRegistration(
-        int $userId,
-        string $verificationCode
-    ): Response {
-        $message = $this->userService->verifyUser($userId, $verificationCode);
-
-        return $this->render('verification/message.html.twig', [
-            'message' => $message,
-        ]);
     }
 }

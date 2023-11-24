@@ -30,6 +30,8 @@ class AppFixtures extends Fixture
          $user->setApprovedBy(1);
          $user->setCreatedAt(new \DateTime('now'));
          $user->setUpdatedAt(new \DateTime('now'));
+         $user->setRoles(["ROLE_USER"]);
+         $user->setStatus(true);
 
          $manager->persist($user);
          $manager->flush();

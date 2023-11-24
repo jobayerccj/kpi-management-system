@@ -12,15 +12,10 @@ use Symfony\Component\Routing\RouterInterface;
 
 class MailerService
 {
-    private MailerInterface $mailer;
-    private RouterInterface $router;
-
     public function __construct(
-        MailerInterface $mailer,
-        RouterInterface $router
+        private readonly MailerInterface $mailer,
+        private readonly RouterInterface $router
     ) {
-        $this->mailer = $mailer;
-        $this->router = $router;
     }
 
     /**
