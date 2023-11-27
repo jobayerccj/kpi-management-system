@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\IndividualKpiRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-//use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: IndividualKpiRepository::class)]
