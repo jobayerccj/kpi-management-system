@@ -29,8 +29,10 @@ class IndividualKpiService
 
             $department = new IndividualKpi();
             $department->setKpiSetupId($data['kpi_setup_id']);
+            $department->setUserId($data['user_id']);
             $department->setKpiTypeId($data['kpi_type_id']);
             $department->setPeriodId($data['period_id']);
+            $department->setWeight($data['weight']);
             $department->setCreatedBy(1);
             $department->setStatus(1);
             $department->setCreatedAt($date);

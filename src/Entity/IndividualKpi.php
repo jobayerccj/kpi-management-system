@@ -37,6 +37,11 @@ class IndividualKpi
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+    #[ORM\Column, Assert\NotBlank(message: 'The kpi weight field should not be blank.')]
+    private ?int $weight = null;
+
+    #[ORM\Column, Assert\NotBlank(message: 'The user id field should not be blank.')]
+    private ?int $userId = null;
 
     public function getId(): ?int
     {
@@ -123,6 +128,30 @@ class IndividualKpi
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getWeight(): ?int
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(int $weight): static
+    {
+        $this->weight = $weight;
+
+        return $this;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(int $userId): static
+    {
+        $this->userId = $userId;
 
         return $this;
     }

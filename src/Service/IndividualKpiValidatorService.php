@@ -20,8 +20,10 @@ class IndividualKpiValidatorService
     {
         $individualKpi = new IndividualKpi();
         $individualKpi->setKpiSetupId($data['kpi_setup_id']);
+        $individualKpi->setUserId($data['user_id']);
         $individualKpi->setKpiTypeId($data['kpi_type_id']);
         $individualKpi->setPeriodId($data['period_id']);
+        $individualKpi->setWeight($data['weight']);
         $individualKpi->setCreatedBy(1);
         $individualKpi->setStatus(1);
         $errors = $this->validator->validate($individualKpi);

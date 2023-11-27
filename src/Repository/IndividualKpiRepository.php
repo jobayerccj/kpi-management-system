@@ -21,28 +21,15 @@ class IndividualKpiRepository extends ServiceEntityRepository
         parent::__construct($registry, IndividualKpi::class);
     }
 
-//    /**
-//     * @return IndividualKpi[] Returns an array of IndividualKpi objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('i.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?IndividualKpi
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findUserWiseWeight(int $userId)
+    {
+        $queryBuilder = $this->createQueryBuilder('individual_kpi');
+        $queryBuilder->select('sum(individual_kpi.weight) as totalWeight');
+        // add the where condition with a parameter
+        $queryBuilder->andWhere('individual_kpi.userId = :user_id');
+        // set the parameter value
+        $queryBuilder->setParameter('user_id', $userId);
+        // optionally, you can add other conditions or joins to your query
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
 }
