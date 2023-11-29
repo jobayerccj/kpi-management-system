@@ -1,1 +1,2 @@
-{"migrations\/Version20231128160017.php":"28153f17f9e69d54567d2bd742b75aac","src\/Controller\/Api\/v1\/IndividualKpiController.php":"5ce19bcdaf2aacfc386c186e123d11f7","src\/DataFixtures\/KpiSetupFixture.php":"f8a5929403d5c1e9b849993617e5bfbe","src\/Service\/IndividualKpiService.php":"c2a1aba14ef249dd6dfd025edc83e3c5"}
+{"config\/bundles.php":"63b3edd5c1c61e56d904bbc410b5ca57","src\/DataFixtures\/AppFixtures.php":"a32dbf4b520d7cceb82b072c261e7564","src\/Controller\/Api\/v1\/UserManagementController.php":"7e9605c4bb50756d2e61b6af73e65635","src\/Service\/UserService.php":"b0463246bc0bafea76750a1ba38d4da0"}
+

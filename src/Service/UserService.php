@@ -11,24 +11,13 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
 {
-    private EntityManagerInterface $entityManager;
-    private UserPasswordHasherInterface $userPasswordHasher;
-    private MailerService $mailerService;
-    private UserRepository $userRepository;
-    private UserValidator $userValidator;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        UserValidator $userValidator,
-        UserPasswordHasherInterface $userPasswordHasher,
-        MailerService $mailerService,
-        UserRepository $userRepository
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserValidator $userValidator,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly MailerService $mailerService,
+        private readonly UserRepository $userRepository
     ) {
-        $this->entityManager = $entityManager;
-        $this->userPasswordHasher = $userPasswordHasher;
-        $this->mailerService = $mailerService;
-        $this->userRepository = $userRepository;
-        $this->userValidator = $userValidator;
     }
 
     public function processUserData(Request $request): array
@@ -39,6 +28,7 @@ class UserService
         $user->setMobileNumber($request->get('mobileNumber'));
         $user->setEmployeeId($request->get('employeeId'));
         $user->setPassword($request->get('password'));
+        $user->setRoles(['ROLE_USER']);
         $user->setVerificationCode(substr(md5((string) mt_rand(9999, 999999)), 0, 60));
         $validData = $this->userValidator->validateData($user);
 
@@ -77,5 +67,22 @@ class UserService
         } else {
             return 'Wrong information provided';
         }
+    }
+
+    public function findUsers(Request $request): array
+    {
+        $response['status'] = false;
+        $response['users'] = [];
+        $response['message'] = '';
+        $requestData = json_decode($request->getContent());
+
+        if (!isset($requestData->status) && !is_null($requestData->status)) {
+            $response['message'] = 'status field is required';
+            return $response;
+        }
+
+        $response['status'] = true;
+        $response['users'] = $this->userRepository->findBy(['status' => $requestData->status]);
+        return $response;
     }
 }

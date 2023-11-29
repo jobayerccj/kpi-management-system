@@ -8,13 +8,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'], message: 'Email address should be unique')]
 #[UniqueEntity(fields: ['employeeId'], message: 'Employee ID should be unique')]
-class User implements PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableEntity;
 
@@ -57,6 +58,9 @@ class User implements PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Password should not be blank.')]
     private ?string $password = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     public function getId(): ?int
     {
@@ -181,5 +185,31 @@ class User implements PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
     }
 }
