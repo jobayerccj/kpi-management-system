@@ -3,14 +3,12 @@
 namespace App\Service;
 
 use App\Repository\KpiSetupRepository;
+use Exception;
 
 class KpiSetupService
 {
-    private KpiSetupRepository $kpiSetupRepository;
-
-    public function __construct(KpiSetupRepository $kpiSetupRepository)
+    public function __construct(private readonly KpiSetupRepository $kpiSetupRepository)
     {
-        $this->kpiSetupRepository = $kpiSetupRepository;
     }
 
     public function list(): array
@@ -22,7 +20,7 @@ class KpiSetupService
                 'status' => true,
                 'data' => $data,
             ];
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return [
                 'status' => false,
                 'message' => $exception->getMessage(),

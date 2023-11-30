@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\IndividualKpiRepository;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,7 +24,14 @@ class IndividualKpi
 
     #[ORM\Column, Assert\NotBlank(message: 'The period id field should not be blank.')]
     private ?int $periodId = null;
-
+    #[ORM\Column, Assert\NotBlank(message: 'The user id field should not be blank.')]
+    private ?int $userId = null;
+    #[ORM\Column, Assert\NotBlank(message: 'The kpi weight field should not be blank.')]
+    private ?int $weight = null;
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
     #[ORM\Column]
     private ?int $status = null;
 
@@ -31,15 +39,10 @@ class IndividualKpi
     private ?int $createdBy = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private ?DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    private ?DateTimeInterface $updatedAt = null;
 
     public function getKpiSetupId(): ?int
     {
@@ -77,6 +80,31 @@ class IndividualKpi
         return $this;
     }
 
+
+    public function getWeight(): ?int
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(int $weight): static
+    {
+        $this->weight = $weight;
+
+        return $this;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(int $userId): static
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
     public function getStatus(): ?int
     {
         return $this->status;
@@ -101,24 +129,24 @@ class IndividualKpi
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    public function setUpdatedAt(?DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 

@@ -6,13 +6,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class IndividualKpiValidatorService
 {
-    private ValidatorInterface $validator;
-    private ValidationMessage $validationMessage;
-
-    public function __construct(ValidatorInterface $validator, ValidationMessage $validationMessage)
-    {
-        $this->validator = $validator;
-        $this->validationMessage = $validationMessage;
+    public function __construct(
+        private readonly ValidatorInterface $validator,
+        private readonly ValidationMessage $validationMessage
+    ) {
     }
 
     public function validateIndividualKpi($data): array
