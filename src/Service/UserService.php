@@ -76,13 +76,49 @@ class UserService
         $response['message'] = '';
         $requestData = json_decode($request->getContent());
 
-        if (!isset($requestData->status) && !is_null($requestData->status)) {
+        if (is_null($requestData) || !property_exists($requestData, 'status')) {
             $response['message'] = 'status field is required';
             return $response;
         }
 
         $response['status'] = true;
         $response['users'] = $this->userRepository->findBy(['status' => $requestData->status]);
+        return $response;
+    }
+
+    public function approveOrRejectUsers(Request $request, User $approvedBy): array
+    {
+        $response['status'] = false;
+        $response['users'] = [];
+        $response['message'] = '';
+        $requestData = json_decode($request->getContent());
+
+        if (is_null($requestData) || !property_exists($requestData, 'users')) {
+            $response['message'] = 'status field is required';
+            return $response;
+        }
+
+        $processedUsers = [];
+
+        if (count($requestData->users)) {
+            foreach ($requestData->users as $user) {
+                $currentUser = $this->userRepository->findOneBy(['id' => $user[0]]);
+                if ($currentUser && $currentUser->getIsVerified() && is_null($currentUser->isStatus())) {
+                    $currentUser->setStatus($user[1]);
+                    $processedUsers[] = $currentUser;
+                    $currentUser->setApprovedBy($approvedBy->getId());
+                }
+            }
+        }
+
+        $this->entityManager->flush();
+
+        foreach ($processedUsers as $processedUser) {
+            $this->mailerService->sendApprovalEmailToUser($processedUser);
+        }
+
+        $response['status'] = true;
+        $response['totalProcessed'] = count($processedUsers);
         return $response;
     }
 }
