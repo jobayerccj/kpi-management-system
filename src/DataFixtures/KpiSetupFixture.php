@@ -11,7 +11,7 @@ class KpiSetupFixture extends Fixture
     public function load(ObjectManager $manager): void
     {
         $date = new \DateTime('now', new \DateTimeZone('Asia/Dhaka'));
-        for ($i = 0; $i < 20; ++$i) {
+        for ($i = 1; $i < 20; ++$i) {
             $kpiSetup = new KpiSetup();
             $kpiSetup->setTitle('Task number ' . $i . ' Authentication management system');
             $kpiSetup->setStatus(1);
