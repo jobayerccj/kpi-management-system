@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Validator\UserValidator;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -55,18 +56,17 @@ class UserService
         $user = $this->userRepository->findOneBy(['id' => $userId, 'verificationCode' => $verificationCode]);
 
         if (!empty($user) && is_null($user->getVerifiedAt())) {
-            $user->setVerifiedAt(new \DateTimeImmutable('now'));
+            $user->setIsVerified(1);
+            $user->setVerifiedAt(new DateTimeImmutable('now'));
             $this->entityManager->flush();
             $this->mailerService->sendApprovalEmailToAdmin($user);
 
             return 'Thank you for your verification, an admin will approve your request, please wait.';
-        } elseif (empty($user)) {
-            return 'Invalid verification code provided';
-        } elseif (!is_null($user->getVerifiedAt())) {
+        } elseif (!empty($user) && !is_null($user->getVerifiedAt())) {
             return 'You have already verified your account, an admin will approve your request, please wait.';
-        } else {
-            return 'Wrong information provided';
         }
+
+        return 'Wrong information provided';
     }
 
     public function findUsers(Request $request): array

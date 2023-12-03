@@ -19,6 +19,7 @@ class UserServiceTest extends WebTestCase
     protected static $mailerService;
     protected static $userRepository;
     protected static $userService;
+    protected static $userId;
 
     protected function setUp(): void
     {
@@ -38,18 +39,20 @@ class UserServiceTest extends WebTestCase
             self::$mailerService,
             self::$userRepository
         );
+
+        self::$userId = self::$userRepository->findFirstUserId();
     }
 
     /**
-     * @dataProvider provideRequest
+     * @dataProvider processUserDataRequest
      */
-    public function testProcessUserDataStatus($request = null, $expectedResult = true)
+    public function testProcessUserDataStatus(Request $request = null, bool $expectedResult = true)
     {
         $processedData = self::$userService->processUserData($request);
         $this->assertSame($expectedResult, $processedData['status']);
     }
 
-    public static function provideRequest(): array
+    public static function processUserDataRequest(): array
     {
         // appropriate data
         $request = new Request();
@@ -78,6 +81,7 @@ class UserServiceTest extends WebTestCase
         $request3->request->set('mobileNumber', '12345678');
         $request3->request->set('employeeId', 3);
 
+        // user with empty data
         $request4 = new Request();
         $request4->setMethod('POST');
         $request4->request->set('name', '');
@@ -92,5 +96,29 @@ class UserServiceTest extends WebTestCase
             [$request3, false],
             [$request4, false]
         ];
+    }
+
+    public function verifyUserDataProvider(): array
+    {
+        return [
+            [
+                0, 'e172b3863df878ad26492cbfb7a07373',
+                'You have already verified your account, an admin will approve your request, please wait.'
+            ],
+            [1, 'adasdadsd', 'Wrong information provided'],
+            [4,
+                '9efad89904fdd86a5ab303ca8975ed5b',
+                'Thank you for your verification, an admin will approve your request, please wait.'
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider verifyUserDataProvider
+     */
+    public function testVerifyUser(int $userId, string $verificationCode, string $expectedResult)
+    {
+        $result = self::$userService->verifyUser(self::$userId + $userId, $verificationCode);
+        $this->assertSame($expectedResult, $result);
     }
 }

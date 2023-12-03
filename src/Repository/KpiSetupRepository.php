@@ -20,6 +20,7 @@ class KpiSetupRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, KpiSetup::class);
     }
+
     /**
      * @return KpiSetup[] Returns an array of KpiSetup objects
      */
