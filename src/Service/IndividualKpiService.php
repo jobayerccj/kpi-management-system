@@ -28,6 +28,18 @@ class IndividualKpiService
             $individualKpi->setPeriodId($data['period_id']);
             $individualKpi->setWeight($data['weight']);
             $individualKpi->setDescription($data['description']);
+            $individualKpi->setJanuaryTarget($data['january_target'] ?? null);
+            $individualKpi->setFebruaryTarget($data['february_target'] ?? null);
+            $individualKpi->setMarchTarget($data['march_target'] ?? null);
+            $individualKpi->setAprilTarget($data['april_target'] ?? null);
+            $individualKpi->setMayTarget($data['may_target'] ?? null);
+            $individualKpi->setJuneTarget($data['june_target'] ?? null);
+            $individualKpi->setJulyTarget($data['july_target'] ?? null);
+            $individualKpi->setAugustTarget($data['august_target'] ?? null);
+            $individualKpi->setSeptemberTarget($data['september_target'] ?? null);
+            $individualKpi->setOctoberTarget($data['october_target'] ?? null);
+            $individualKpi->setNovemberTarget($data['november_target'] ?? null);
+            $individualKpi->setDecemberTarget($data['december_target'] ?? null);
             $individualKpi->setCreatedBy(self::CREATED_BY);
             $individualKpi->setStatus(self::TARGET_SUBMITTED);
             $individualKpi->setCreatedAt($date);

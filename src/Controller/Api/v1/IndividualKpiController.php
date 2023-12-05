@@ -5,6 +5,8 @@ namespace App\Controller\Api\v1;
 use App\Entity\User;
 use App\Repository\IndividualKpiRepository;
 use App\Service\IndividualKpiService;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,17 +27,7 @@ class IndividualKpiController extends AbstractController
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function store(Request $request): JsonResponse
     {
-        $requestData = [
-            'kpi_setup_id' => $request->request->get('kpi_setup_id') ?? null,
-            // user_id should be input value because admin will be able to set up other's kpi
-            'user_id' => $request->request->get('user_id'),
-            'kpi_type_id' => $request->request->get('kpi_type_id') ?? null,
-            'period_id' => $request->request->get('period_id') ?? null,
-            'weight' => $request->request->get('weight') ?? null,
-            'description' => $request->request->get('description') ?? null,
-        ];
-
-        $result = $this->individualKpiService->createIndividualKpi($requestData);
+        $result = $this->individualKpiService->createIndividualKpi($request->request->all());
         if ($result['status']) {
             return $this->json($result, Response::HTTP_CREATED);
         }
@@ -43,11 +35,15 @@ class IndividualKpiController extends AbstractController
         return $this->json($result, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     #[Route('/current-weight', name: 'current-weight', methods: ['GET'])]
     public function currentWeight(): JsonResponse
     {
         /** @var User $loggedInUser */
-        $loggedInUser = $this->security->getUser();
+        $loggedInUser = $this->security->getUser(); // TODO: Need to discuss for Admin user
         $weight = $this->individualKpiRepository->findUserWiseWeight($loggedInUser->getId());
 
         return $this->json(['status' => 'success', 'weight' => $weight]);
