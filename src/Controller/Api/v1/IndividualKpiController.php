@@ -25,26 +25,19 @@ class IndividualKpiController extends AbstractController
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function store(Request $request): JsonResponse
     {
-        /** @var User $loggedInUser */
-        $loggedInUser = $this->security->getUser();
-        $result = $this->individualKpiService->validateWeight(
-            $loggedInUser->getId(),
-            $request->request->get('weight') ?? 0
-        );
+        $requestData = [
+            'kpi_setup_id' => $request->request->get('kpi_setup_id') ?? null,
+            // user_id should be input value because admin will be able to set up other's kpi
+            'user_id' => $request->request->get('user_id'),
+            'kpi_type_id' => $request->request->get('kpi_type_id') ?? null,
+            'period_id' => $request->request->get('period_id') ?? null,
+            'weight' => $request->request->get('weight') ?? null,
+            'description' => $request->request->get('description') ?? null,
+        ];
 
+        $result = $this->individualKpiService->createIndividualKpi($requestData);
         if ($result['status']) {
-            $requestData = [
-                'kpi_setup_id' => $request->request->get('kpi_setup_id') ?? null,
-                'user_id' => $loggedInUser->getId(),
-                'kpi_type_id' => $request->request->get('kpi_type_id') ?? null,
-                'period_id' => $request->request->get('period_id') ?? null,
-                'weight' => $request->request->get('weight') ?? null,
-            ];
-
-            $result = $this->individualKpiService->createIndividualKpi($requestData);
-            if ($result['status']) {
-                return $this->json($result, Response::HTTP_CREATED);
-            }
+            return $this->json($result, Response::HTTP_CREATED);
         }
 
         return $this->json($result, Response::HTTP_UNPROCESSABLE_ENTITY);

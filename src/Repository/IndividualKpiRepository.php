@@ -29,7 +29,7 @@ class IndividualKpiRepository extends ServiceEntityRepository
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
-    public function findUserWiseWeight(int $userId)
+    public function findUserWiseWeight(int $userId): float|bool|int|string|null
     {
         return $this->createQueryBuilder('individual_kpi')
             ->select('sum(individual_kpi.weight) as totalWeight')
@@ -38,5 +38,21 @@ class IndividualKpiRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function checkUniqKpiSetupId($userId, $kpi_setup_id): int
+    {
+        return $this->createQueryBuilder('individual_kpi')
+            ->select('Count(individual_kpi.id) as kpiSetupCount')
+            ->andWhere('individual_kpi.userId = :user_id')
+            ->andWhere('individual_kpi.kpiSetupId = :kpi_setup_id')
+            ->setParameter('user_id', $userId)
+            ->setParameter('kpi_setup_id', $kpi_setup_id)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
