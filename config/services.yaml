@@ -6,6 +6,8 @@
 parameters:
 
 services:
+    App\Service\IndividualKpiValidatorService:
+    App\Service\IndividualKpiService:
     App\Service\DepartmentValidatorService:
         arguments:
             $validator: '@validator'
