@@ -2,9 +2,12 @@
 
 namespace App\Service;
 
+use App\Entity\KpiApproverSetup;
 use App\Entity\User;
+use App\Repository\KpiApproverSetupRepository;
 use App\Repository\UserRepository;
 use App\Validator\UserValidator;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -55,7 +58,7 @@ class UserService
         $user = $this->userRepository->findOneBy(['id' => $userId, 'verificationCode' => $verificationCode]);
 
         if (!empty($user) && is_null($user->getVerifiedAt())) {
-            $user->setVerifiedAt(new \DateTimeImmutable('now'));
+            $user->setVerifiedAt(new DateTimeImmutable('now'));
             $this->entityManager->flush();
             $this->mailerService->sendApprovalEmailToAdmin($user);
 
@@ -78,11 +81,13 @@ class UserService
 
         if (is_null($requestData) || !property_exists($requestData, 'status')) {
             $response['message'] = 'status field is required';
+
             return $response;
         }
 
         $response['status'] = true;
         $response['users'] = $this->userRepository->findBy(['status' => $requestData->status]);
+
         return $response;
     }
 
@@ -90,11 +95,13 @@ class UserService
     {
         $response['status'] = false;
         $response['users'] = [];
-        $response['message'] = '';
+        $response['message'] = 'successfully processed';
+        $response['totalProcessed'] = 0;
         $requestData = json_decode($request->getContent());
 
-        if (is_null($requestData) || !property_exists($requestData, 'users')) {
-            $response['message'] = 'status field is required';
+        if (is_null($requestData) || !property_exists($requestData, 'users') || !count($requestData->users)) {
+            $response['message'] = 'users data is required';
+
             return $response;
         }
 
@@ -119,6 +126,95 @@ class UserService
 
         $response['status'] = true;
         $response['totalProcessed'] = count($processedUsers);
+
         return $response;
+    }
+
+    public function addKpiApproverSetup(Request $request, User $addedBy)
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $validationResult = $this->validateAddKpiApproverRequest($requestData);
+
+        if (!$validationResult['status']) {
+            return [
+                'status' => false,
+                'message' => $validationResult['message'],
+                'totalProcessed' => 0
+            ];
+        }
+
+        $today = new DateTimeImmutable('now', new \DateTimeZone('Asia/Dhaka'));
+        $totalProcessed = 0;
+
+        foreach ($requestData as $key => $approversList) {
+            $processed = 0;
+            foreach ($approversList as $approver) {
+                if (is_null($this->checkIfApproverAdded($key, $approver[0]))) {
+                    $kpiApproverSetup = new KpiApproverSetup();
+                    $kpiApproverSetup->setUserId($key);
+                    $kpiApproverSetup->setApproverId($approver[0]);
+                    $kpiApproverSetup->setSerial($approver[1]);
+                    $kpiApproverSetup->setStatus(true);
+                    $kpiApproverSetup->setAddedBy($addedBy->getId());
+                    $kpiApproverSetup->setCreatedAt($today);
+                    $this->entityManager->persist($kpiApproverSetup);
+                    $processed = 1;
+                }
+            }
+
+            $totalProcessed += $processed;
+        }
+
+        $this->entityManager->flush();
+
+        return [
+            'status' => true,
+            'message' => 'Successfully processed',
+            'totalProcessed' => $totalProcessed
+        ];
+    }
+
+    private function validateAddKpiApproverRequest(array $requestData): array
+    {
+        if (!count($requestData)) {
+            return [
+                'status' => false,
+                'message' => 'Users & approver data are required'
+            ];
+        }
+
+        if (!$this->validateUsers($requestData)) {
+            return [
+                'status' => false,
+                'message' => 'Invalid User / Approver data provided'
+            ];
+        }
+
+        return [
+            'status' => true
+        ];
+    }
+
+    private function checkIfApproverAdded(int $userId, int $approverId): ?KpiApproverSetup
+    {
+        /** @var KpiApproverSetupRepository $kpiApproverRepository */
+        $kpiApproverRepository = $this->entityManager->getRepository(KpiApproverSetup::class);
+
+        return $kpiApproverRepository->findOneBy(['userId' => $userId, 'approverId' => $approverId]);
+    }
+
+    private function validateUsers(array $requestData): bool
+    {
+        $userIds = array_keys($requestData);
+
+        foreach ($requestData as $users) {
+            foreach ($users as $user) {
+                $userIds[] = $user[0];
+            }
+        }
+
+        $usersFromRequest = array_unique($userIds);
+        $users = $this->userRepository->findUserByIds($usersFromRequest);
+        return count($users) === count(array_unique($usersFromRequest));
     }
 }
