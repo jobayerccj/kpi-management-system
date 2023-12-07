@@ -58,7 +58,34 @@ class UserManagementController extends AbstractController
             return $this->json(
                 [
                     'status' => $result['status'],
-                    'totalProcessed' => $result['totalProcessed']
+                    'totalProcessed' => $result['totalProcessed'],
+                    'message' => $result['message']
+                ],
+                Response::HTTP_OK
+            );
+        } catch (Exception $exc) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => $exc->getMessage(),
+                ],
+                RESPONSE::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+    }
+
+    #[Route('/kpi-approver-setup', name: 'kpi_approver_setup', methods: ["POST"])]
+    public function kpiApproverSetup(Request $request, Security $security)
+    {
+        try {
+            /** @var User $user */
+            $user = $security->getUser();
+            $result = $this->userService->addKpiApproverSetup($request, $user);
+            return $this->json(
+                [
+                    'status' => $result['status'],
+                    'totalProcessed' => $result['totalProcessed'],
+                    'message' => $result['message']
                 ],
                 Response::HTTP_OK
             );
